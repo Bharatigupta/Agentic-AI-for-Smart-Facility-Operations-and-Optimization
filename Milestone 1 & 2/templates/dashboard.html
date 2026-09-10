@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Agentic FacilityOps AI Platform</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#122a5c; --navy2:#1b3a7a; --blue:#2f6bff; --green:#1eb980;
+    --amber:#f5a623; --red:#e2495a; --bg:#eef1f8; --card:#ffffff; --muted:#6b7488;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1c2440;}
+  header{background:linear-gradient(120deg,var(--navy),var(--navy2));color:#fff;padding:22px 30px;}
+  header h1{margin:0;font-size:26px;}
+  header p{margin:4px 0 0;color:#c7d3f5;font-size:14px;}
+  .tabs{display:flex;gap:8px;padding:16px 30px 0;background:var(--bg);}
+  .tab-btn{padding:10px 22px;border:none;border-radius:10px 10px 0 0;background:#dde3f2;color:#3a4266;
+           font-weight:600;cursor:pointer;font-size:14px;}
+  .tab-btn.active{background:var(--card);color:var(--navy);}
+  .live{display:inline-block;margin-left:10px;font-size:11px;background:#e5f7ee;color:var(--green);
+        padding:3px 10px;border-radius:20px;font-weight:700;}
+  .live::before{content:"● ";}
+  main{padding:22px 30px 50px;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .grid{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;}
+  .card{background:var(--card);border-radius:14px;padding:18px 20px;box-shadow:0 2px 10px rgba(20,30,70,.06);
+        margin-bottom:18px;}
+  .card h3{margin:0 0 14px;font-size:15px;color:var(--navy);}
+  .kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .kpi{border-radius:12px;padding:14px 16px;background:#f4f7ff;}
+  .kpi .label{font-size:12px;color:var(--muted);font-weight:600;}
+  .kpi .value{font-size:24px;font-weight:800;margin-top:4px;}
+  .kpi.green{background:#eafbf3;} .kpi.green .value{color:var(--green);}
+  .kpi.blue{background:#eef2ff;} .kpi.blue .value{color:var(--blue);}
+  .kpi.amber{background:#fff6e8;} .kpi.amber .value{color:var(--amber);}
+  .kpi.red{background:#fdecee;} .kpi.red .value{color:var(--red);}
+  .feature-list{list-style:none;margin:0;padding:0;columns:2;gap:14px;}
+  .feature-list li{font-size:13px;margin-bottom:8px;color:#33395a;}
+  .feature-list li::before{content:"✔ ";color:var(--green);font-weight:700;}
+  .bar-row{margin-bottom:12px;}
+  .bar-row .barlabel{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;color:#33395a;}
+  .bartrack{background:#e7ebf7;border-radius:8px;height:9px;overflow:hidden;}
+  .barfill{height:100%;border-radius:8px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #eef0f7;}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;}
+  .badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+  .badge.Critical{background:#fdecee;color:var(--red);}
+  .badge.High{background:#fff2e0;color:#c9791a;}
+  .badge.Moderate{background:#fff8e0;color:#b58900;}
+  .badge.Low{background:#eafbf3;color:var(--green);}
+  ul.reclist{margin:0;padding-left:18px;font-size:13px;line-height:1.9;color:#33395a;}
+  canvas{max-height:220px;}
+  .muted{color:var(--muted);font-size:12px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏢 Agentic FacilityOps AI Platform</h1>
+  <p>Autonomous AI Agents for Smart, Secure & Sustainable Facilities <span class="live">Live Monitoring</span></p>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('energy')">⚡ Milestone 1 — Energy Intelligence</button>
+  <button class="tab-btn" onclick="showTab('maint')">🔧 Milestone 2 — Predictive Maintenance</button>
+</div>
+
+<main>
+  <!-- ================= MILESTONE 1: ENERGY ================= -->
+  <div id="energy" class="panel active">
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h3>Energy Intelligence Features</h3>
+          <ul class="feature-list">
+            <li>Real-Time Energy Monitoring</li>
+            <li>Electricity Usage Analytics</li>
+            <li>Water Consumption Analytics</li>
+            <li>HVAC Performance Monitoring</li>
+            <li>Energy Heatmaps</li>
+            <li>Carbon Emission Tracking</li>
+            <li>AI Energy Optimization</li>
+            <li>Demand Forecasting</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Electricity Usage — Last 24 Hours (kWh)</h3>
+          <canvas id="trendChart"></canvas>
+        </div>
+        <div class="card">
+          <h3>AI Recommendations (Energy Agent)</h3>
+          <ul class="reclist" id="recList"><li class="muted">Loading…</li></ul>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>Key Performance Indicators</h3>
+          <div class="kpi-row">
+            <div class="kpi blue"><div class="label">Total Energy</div><div class="value" id="kpiEnergy">–</div></div>
+            <div class="kpi green"><div class="label">Cost Savings</div><div class="value" id="kpiSavings">–</div></div>
+            <div class="kpi amber"><div class="label">Efficiency Score</div><div class="value" id="kpiEff">–</div></div>
+            <div class="kpi green"><div class="label">Carbon Reduction</div><div class="value" id="kpiCarbon">–</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Energy Distribution</h3>
+          <div id="distBars"></div>
+        </div>
+        <div class="card">
+          <h3>HVAC Efficiency Status</h3>
+          <p id="hvacStatus" class="muted">Loading…</p>
+        </div>
+        <div class="card">
+          <h3>6-Hour Demand Forecast</h3>
+          <canvas id="forecastChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MILESTONE 2: MAINTENANCE ================= -->
+  <div id="maint" class="panel">
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h3>Predictive Maintenance Features</h3>
+          <ul class="feature-list">
+            <li>Asset Health Monitoring</li>
+            <li>Equipment Condition Scores</li>
+            <li>Failure Risk Predictions</li>
+            <li>Predictive Maintenance Alerts</li>
+            <li>Maintenance Schedule Calendar</li>
+            <li>Work Order Tracking</li>
+            <li>Asset Lifecycle Analytics</li>
+            <li>Anomaly Detection</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Failure Risk Predictions (Maintenance Agent)</h3>
+          <table>
+            <thead><tr><th>Asset</th><th>Type</th><th>Health</th><th>Risk</th><th>Predicted In</th></tr></thead>
+            <tbody id="predTable"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Auto-Generated Work Orders</h3>
+          <table>
+            <thead><tr><th>Asset</th><th>Issue</th><th>Priority</th><th>Status</th></tr></thead>
+            <tbody id="woTable"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>Key Performance Indicators</h3>
+          <div class="kpi-row">
+            <div class="kpi blue"><div class="label">Assets Monitored</div><div class="value" id="kpiAssets">–</div></div>
+            <div class="kpi green"><div class="label">Maintenance Tickets</div><div class="value" id="kpiTickets">–</div></div>
+            <div class="kpi red"><div class="label">Predicted Failures</div><div class="value" id="kpiFailures">–</div></div>
+            <div class="kpi green"><div class="label">Downtime Reduction</div><div class="value" id="kpiDowntime">–</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Equipment Health Distribution</h3>
+          <div id="healthBars"></div>
+        </div>
+        <div class="card">
+          <h3>Abnormal Behavior Alerts</h3>
+          <ul class="reclist" id="anomalyList"><li class="muted">Loading…</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const colors = {"HVAC Systems":"#2f6bff","Lighting":"#1eb980","Equipment":"#f5a623","Other Systems":"#8b93ac",
+                 "Excellent":"#1eb980","Good":"#2f6bff","Warning":"#f5a623","Critical":"#e2495a"};
+
+function showTab(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function bars(container, obj){
+  container.innerHTML = '';
+  for (const [k,v] of Object.entries(obj)){
+    const row = document.createElement('div');
+    row.className='bar-row';
+    row.innerHTML = `<div class="barlabel"><span>${k}</span><span>${v}%</span></div>
+      <div class="bartrack"><div class="barfill" style="width:${v}%;background:${colors[k]||'#2f6bff'}"></div></div>`;
+    container.appendChild(row);
+  }
+}
+
+let trendChart, forecastChart;
+
+async function loadEnergy(){
+  const kpis = await fetch('/api/energy/kpis').then(r=>r.json());
+  document.getElementById('kpiEnergy').textContent = kpis.total_energy_mwh + ' MWh';
+  document.getElementById('kpiSavings').textContent = '$' + kpis.cost_savings;
+  document.getElementById('kpiEff').textContent = kpis.efficiency_score + '%';
+  document.getElementById('kpiCarbon').textContent = kpis.carbon_reduction_pct + '%';
+  bars(document.getElementById('distBars'), kpis.distribution);
+
+  const recs = await fetch('/api/energy/recommendations').then(r=>r.json());
+  document.getElementById('recList').innerHTML = recs.map(r=>`<li>${r}</li>`).join('');
+
+  const hvac = await fetch('/api/energy/hvac').then(r=>r.json());
+  document.getElementById('hvacStatus').textContent = `Avg HVAC load ${hvac.avg_hvac_load_pct}% — ${hvac.status}`;
+
+  const trend = await fetch('/api/energy/trend').then(r=>r.json());
+  const tctx = document.getElementById('trendChart');
+  const tdata = {labels: trend.map(t=>t.time), datasets:[{label:'kWh', data: trend.map(t=>t.kwh),
+                 borderColor:'#2f6bff', backgroundColor:'rgba(47,107,255,.1)', tension:.35, fill:true}]};
+  if (trendChart){ trendChart.data = tdata; trendChart.update(); }
+  else { trendChart = new Chart(tctx, {type:'line', data:tdata, options:{plugins:{legend:{display:false}}}}); }
+
+  const forecast = await fetch('/api/energy/forecast').then(r=>r.json());
+  const fctx = document.getElementById('forecastChart');
+  const fdata = {labels: forecast.map(f=>f.hour), datasets:[{label:'Projected kWh', data: forecast.map(f=>f.projected_kwh),
+                 backgroundColor:'#f5a623'}]};
+  if (forecastChart){ forecastChart.data = fdata; forecastChart.update(); }
+  else { forecastChart = new Chart(fctx, {type:'bar', data:fdata, options:{plugins:{legend:{display:false}}}}); }
+}
+
+async function loadMaintenance(){
+  const kpis = await fetch('/api/maintenance/kpis').then(r=>r.json());
+  document.getElementById('kpiAssets').textContent = kpis.assets_monitored;
+  document.getElementById('kpiTickets').textContent = kpis.maintenance_tickets;
+  document.getElementById('kpiFailures').textContent = kpis.predicted_failures;
+  document.getElementById('kpiDowntime').textContent = kpis.downtime_reduction_pct + '%';
+  bars(document.getElementById('healthBars'), kpis.health_distribution_pct);
+
+  const preds = await fetch('/api/maintenance/predictions').then(r=>r.json());
+  document.getElementById('predTable').innerHTML = preds.map(p=>
+    `<tr><td>${p.asset_name}</td><td>${p.asset_type}</td><td>${p.health_score}%</td>
+     <td><span class="badge ${p.risk_level}">${p.risk_level}</span></td>
+     <td>${p.predicted_days_to_maintenance} day(s)</td></tr>`).join('');
+
+  const wo = await fetch('/api/maintenance/workorders').then(r=>r.json());
+  document.getElementById('woTable').innerHTML = wo.length ?
+    wo.map(w=>`<tr><td>${w.asset_name}</td><td>${w.issue_type}</td>
+      <td><span class="badge ${w.priority}">${w.priority}</span></td><td>${w.status}</td></tr>`).join('')
+    : '<tr><td colspan="4" class="muted">No open work orders</td></tr>';
+
+  const anomalies = await fetch('/api/maintenance/anomalies').then(r=>r.json());
+  document.getElementById('anomalyList').innerHTML = anomalies.length ?
+    anomalies.map(a=>`<li>⚠ ${a.asset} — abnormal ${a.metric} (${a.value}, z=${a.z_score})</li>`).join('')
+    : '<li class="muted">No anomalies detected right now</li>';
+}
+
+function refreshAll(){ loadEnergy(); loadMaintenance(); }
+refreshAll();
+setInterval(refreshAll, 8000);
+</script>
+</body>
+</html>
